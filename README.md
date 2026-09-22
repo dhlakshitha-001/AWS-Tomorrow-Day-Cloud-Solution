@@ -32,7 +32,7 @@ The implementation focuses on:
 
 ---
 
-## 🎯 Case Study
+# 🎯 Case Study
 
 Tomorrow Day is a global provider of news and business information services with millions of users worldwide.
 
@@ -262,6 +262,8 @@ Student ID: IT20263980
 Web Server: Amazon EC2
 ```
 
+> The identifier displayed on the test page is the same fictional/placeholder academic identifier used for AWS resource naming.
+
 ---
 
 # 🗄️ Amazon RDS MySQL
@@ -297,7 +299,7 @@ The RDS instance:
 
 The infrastructure was also implemented using **AWS CloudFormation**.
 
-CloudFormation enables the AWS resources to be defined as code instead of manually creating each resource through the AWS Management Console.
+CloudFormation enables AWS resources to be defined as code instead of manually creating each resource through the AWS Management Console.
 
 ### Template
 
@@ -313,7 +315,7 @@ The CloudFormation template defines resources including:
 * Public Subnet
 * Private Subnets
 * Route Table
-* Route Table Association
+* Route Table Associations
 * Web Security Group
 * Database Security Group
 * EC2 Web Server
@@ -426,7 +428,7 @@ is permitted by the database Security Group.
 
 ## 3. RDS Public Access
 
-The RDS configuration was inspected to verify that:
+The RDS configuration was inspected to verify:
 
 ```text
 Public Access = No
@@ -489,7 +491,7 @@ Private Subnet 2
 
 Screenshots documenting the implementation and testing are organized under the `screenshots/` directory.
 
-## Task 3 – AWS Implementation
+### Task 3 – AWS Implementation
 
 ```text
 screenshots/task-03-implementation/
@@ -506,7 +508,7 @@ Includes evidence for:
 * Public/private subnet configuration
 * Database security configuration
 
-## Task 4 – CloudFormation
+### Task 4 – CloudFormation
 
 ```text
 screenshots/task-04-cloudformation/
@@ -525,7 +527,7 @@ Includes evidence for:
 * Database Security Group
 * EC2-to-RDS connectivity
 
-## Task 5 – Testing
+### Task 5 – Testing
 
 ```text
 screenshots/task-05-testing/
@@ -556,7 +558,8 @@ AWS-Tomorrow-Day-Cloud-Solution/
 │   └── tomorrow-day-infrastructure.yaml
 │
 ├── documentation/
-│   └── AWS_Cloud_Solution_Report.pdf
+│   ├── AWS_Tomorrow_Day_Assignment_Brief.pdf
+│   └── AWS_Tomorrow_Day_Cloud_Solution_Report.pdf
 │
 ├── screenshots/
 │   │
@@ -609,17 +612,19 @@ AWS-Tomorrow-Day-Cloud-Solution/
 
 # 📚 Assignment Mapping
 
-| Assignment Task               | Repository Location                                       |
-| ----------------------------- | --------------------------------------------------------- |
-| Task 1 – Requirements         | `README.md` + `screenshots/task-01-requirements/`         |
-| Task 2 – Architecture         | `architecture/` + `README.md`                             |
-| Task 3 – AWS Implementation   | `screenshots/task-03-implementation/`                     |
-| Task 4 – CloudFormation       | `cloudformation/` + `screenshots/task-04-cloudformation/` |
-| Task 5 – Testing & Validation | `screenshots/task-05-testing/`                            |
+| Assignment Task               | Repository Location                                        |
+| ----------------------------- | ---------------------------------------------------------- |
+| Task 1 – Requirements         | `README.md` + `screenshots/task-01-requirements/`          |
+| Task 2 – Architecture         | `architecture/` + `README.md`                              |
+| Task 3 – AWS Implementation   | `screenshots/task-03-implementation/`                      |
+| Task 4 – CloudFormation       | `cloudformation/` + `screenshots/task-04-cloudformation/`  |
+| Task 5 – Testing & Validation | `screenshots/task-05-testing/`                             |
+| Original Assignment           | `documentation/AWS_Tomorrow_Day_Assignment_Brief.pdf`      |
+| Final Report                  | `documentation/AWS_Tomorrow_Day_Cloud_Solution_Report.pdf` |
 
 ---
 
-# 🔐 Security & GitHub Safety
+# 🔐 GitHub Security
 
 The following sensitive information must **not** be committed to GitHub:
 
@@ -645,7 +650,7 @@ A `.gitignore` file should be used to prevent accidental uploads of sensitive fi
 
 The solution was designed as an academic implementation using small AWS resources.
 
-Cost considerations include:
+Potential costs include:
 
 * EC2 instance usage
 * RDS instance usage
@@ -681,7 +686,7 @@ For a production-oriented architecture, the following improvements could be cons
 * AWS IAM least-privilege policies
 * AWS Secrets Manager
 * AWS Systems Manager
-* CloudTrail
+* AWS CloudTrail
 
 ### Monitoring
 
@@ -772,7 +777,7 @@ The completed implementation demonstrates a basic AWS two-tier cloud architectur
                  └──────────────────────┘
 ```
 
-The solution successfully demonstrates:
+The solution demonstrates:
 
 * AWS networking
 * Compute deployment
@@ -788,7 +793,7 @@ The solution successfully demonstrates:
 
 **Status: Completed ✅**
 
-The AWS infrastructure, CloudFormation implementation, testing, screenshots, and documentation have been completed for the academic case study.
+The AWS infrastructure, CloudFormation implementation, testing, screenshots, assignment documentation, and final report have been completed for the academic case study.
 
 ---
 
@@ -822,15 +827,27 @@ The identifier `IT20263980` is a **fictional/placeholder identifier** used for a
 
 ---
 
-## 📄 Documentation
+# 📄 Documentation
 
-The detailed academic report is available at:
+### Assignment Brief
+
+The original assignment document used to define the project requirements is available at:
 
 ```text
-documentation/AWS_Cloud_Solution_Report.pdf
+documentation/AWS_Tomorrow_Day_Assignment_Brief.pdf
 ```
 
-The Infrastructure-as-Code template is available at:
+### Final Project Report
+
+The completed technical report is available at:
+
+```text
+documentation/AWS_Tomorrow_Day_Cloud_Solution_Report.pdf
+```
+
+### Infrastructure as Code
+
+The CloudFormation template is available at:
 
 ```text
 cloudformation/tomorrow-day-infrastructure.yaml
