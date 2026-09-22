@@ -1,0 +1,405 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Description: >
+  Cloud infrastructure for Tomorrow Day
+  news and business information platform.
+
+Parameters:
+
+  StudentID:
+    Type: String
+    Default: IT20263980
+    Description: Student ID used for resource naming
+
+  AmiId:
+    Type: AWS::EC2::Image::Id
+    Default: ami-0eeab0e1473986ffd
+    Description: Amazon Linux 2023 AMI ID for ap-southeast-2
+
+  DBPassword:
+    Type: String
+    NoEcho: true
+    MinLength: 8
+    Description: RDS master password
+
+Resources:
+
+  # ---------------------------------------------------------
+  # VPC
+  # ---------------------------------------------------------
+
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: !Sub '${StudentID}_VPC'
+        - Key: StudentID
+          Value: !Ref StudentID
+        - Key: Project
+          Value: TomorrowDay
+        - Key: Environment
+          Value: Assignment
+
+  # ---------------------------------------------------------
+  # Internet Gateway
+  # ---------------------------------------------------------
+
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub '${StudentID}_IGW'
+        - Key: StudentID
+          Value: !Ref StudentID
+        - Key: Project
+          Value: TomorrowDay
+
+  InternetGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId: !Ref InternetGateway
+      VpcId: !Ref VPC
+
+  # ---------------------------------------------------------
+  # Public Subnet
+  # ---------------------------------------------------------
+
+  PublicSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: ap-southeast-2a
+      CidrBlock: 10.0.1.0/24
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub '${StudentID}_PublicSubnet'
+        - Key: StudentID
+          Value: !Ref StudentID
+        - Key: Project
+          Value: TomorrowDay
+        - Key: Environment
+          Value: Assignment
+
+  # ---------------------------------------------------------
+  # Private Subnet 1
+  # ---------------------------------------------------------
+
+  PrivateSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: ap-southeast-2a
+      CidrBlock: 10.0.2.0/24
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: !Sub '${StudentID}_PrivateSubnet_1'
+        - Key: StudentID
+          Value: !Ref StudentID
+        - Key: Project
+          Value: TomorrowDay
+        - Key: Environment
+          Value: Assignment
+
+  # ---------------------------------------------------------
+  # Private Subnet 2
+  # ---------------------------------------------------------
+
+  PrivateSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: ap-southeast-2b
+      CidrBlock: 10.0.3.0/24
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: !Sub '${StudentID}_PrivateSubnet_2'
+        - Key: StudentID
+          Value: !Ref StudentID
+        - Key: Project
+          Value: TomorrowDay
+        - Key: Environment
+          Value: Assignment
+
+  # ---------------------------------------------------------
+  # Public Route Table
+  # ---------------------------------------------------------
+
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Sub '${StudentID}_PublicRT'
+        - Key: StudentID
+          Value: !Ref StudentID
+        - Key: Project
+          Value: TomorrowDay
+        - Key: Environment
+          Value: Assignment
+
+  # ---------------------------------------------------------
+  # Internet Route
+  # ---------------------------------------------------------
+
+  PublicRoute:
+    Type: AWS::EC2::Route
+    DependsOn: InternetGatewayAttachment
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+
+  # ---------------------------------------------------------
+  # Public Subnet Route Table Association
+  # ---------------------------------------------------------
+
+  PublicSubnetRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicSubnet
+      RouteTableId: !Ref PublicRouteTable
+
+  # ---------------------------------------------------------
+  # Web Server Security Group
+  # ---------------------------------------------------------
+
+  WebSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for Tomorrow Day web server
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: !Sub '${StudentID}_WebSG'
+        - Key: StudentID
+          Value: !Ref StudentID
+        - Key: Project
+          Value: TomorrowDay
+        - Key: Environment
+          Value: Assignment
+
+  # ---------------------------------------------------------
+  # Database Security Group
+  # ---------------------------------------------------------
+
+  DatabaseSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for Tomorrow Day RDS database
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 3306
+          ToPort: 3306
+          SourceSecurityGroupId: !Ref WebSecurityGroup
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: !Sub '${StudentID}_DB-SG'
+        - Key: StudentID
+          Value: !Ref StudentID
+        - Key: Project
+          Value: TomorrowDay
+        - Key: Environment
+          Value: Assignment
+
+  # ---------------------------------------------------------
+  # RDS DB Subnet Group
+  # ---------------------------------------------------------
+
+  DBSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: Private subnet group for Tomorrow Day RDS
+      SubnetIds:
+        - !Ref PrivateSubnet1
+        - !Ref PrivateSubnet2
+      Tags:
+        - Key: Name
+          Value: !Sub '${StudentID}_DBSubnetGroup'
+        - Key: StudentID
+          Value: !Ref StudentID
+        - Key: Project
+          Value: TomorrowDay
+        - Key: Environment
+          Value: Assignment
+
+  # ---------------------------------------------------------
+  # IAM Role for EC2 Systems Manager
+  # ---------------------------------------------------------
+
+  EC2Role:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub '${StudentID}-EC2-SSM-Role'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+      Tags:
+        - Key: StudentID
+          Value: !Ref StudentID
+        - Key: Project
+          Value: TomorrowDay
+        - Key: Environment
+          Value: Assignment
+
+  # ---------------------------------------------------------
+  # EC2 Instance Profile
+  # ---------------------------------------------------------
+
+  EC2InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+        - !Ref EC2Role
+
+  # ---------------------------------------------------------
+  # EC2 Web Server
+  # ---------------------------------------------------------
+
+  WebServer:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref AmiId
+      InstanceType: t3.micro
+      SubnetId: !Ref PublicSubnet
+      SecurityGroupIds:
+        - !Ref WebSecurityGroup
+      IamInstanceProfile: !Ref EC2InstanceProfile
+
+      Tags:
+        - Key: Name
+          Value: !Sub '${StudentID}_WebServer'
+        - Key: StudentID
+          Value: !Ref StudentID
+        - Key: Project
+          Value: TomorrowDay
+        - Key: Environment
+          Value: Assignment
+
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          dnf update -y
+          dnf install -y httpd
+          systemctl enable httpd
+          systemctl start httpd
+
+          cat > /var/www/html/index.html <<EOF
+          <html>
+          <head>
+              <title>Tomorrow Day AWS Cloud Solution</title>
+          </head>
+          <body>
+              <h1>Tomorrow Day - AWS Cloud Solution</h1>
+              <h2>Web Server Successfully Deployed</h2>
+              <p>Student ID: ${StudentID}</p>
+              <p>Server: Amazon EC2</p>
+              <p>Deployment: AWS CloudFormation</p>
+          </body>
+          </html>
+          EOF
+
+  # ---------------------------------------------------------
+  # RDS MySQL Database
+  # ---------------------------------------------------------
+
+  Database:
+    Type: AWS::RDS::DBInstance
+    DeletionPolicy: Snapshot
+    Properties:
+      DBInstanceIdentifier: !Sub '${StudentID}-Database'
+      Engine: mysql
+      DBInstanceClass: db.t3.micro
+      AllocatedStorage: 20
+      StorageType: gp2
+      MasterUsername: admin
+      MasterUserPassword: !Ref DBPassword
+      DBName: tomorrowday
+      VPCSecurityGroups:
+        - !Ref DatabaseSecurityGroup
+      DBSubnetGroupName: !Ref DBSubnetGroup
+      PubliclyAccessible: false
+      BackupRetentionPeriod: 0
+      Tags:
+        - Key: Name
+          Value: !Sub '${StudentID}_Database'
+        - Key: StudentID
+          Value: !Ref StudentID
+        - Key: Project
+          Value: TomorrowDay
+        - Key: Environment
+          Value: Assignment
+
+# ---------------------------------------------------------
+# Outputs
+# ---------------------------------------------------------
+
+Outputs:
+
+  VPCId:
+    Description: VPC ID
+    Value: !Ref VPC
+
+  PublicSubnetId:
+    Description: Public subnet ID
+    Value: !Ref PublicSubnet
+
+  PrivateSubnet1Id:
+    Description: Private subnet 1 ID
+    Value: !Ref PrivateSubnet1
+
+  PrivateSubnet2Id:
+    Description: Private subnet 2 ID
+    Value: !Ref PrivateSubnet2
+
+  WebSecurityGroupId:
+    Description: Web server security group ID
+    Value: !Ref WebSecurityGroup
+
+  DatabaseSecurityGroupId:
+    Description: Database security group ID
+    Value: !Ref DatabaseSecurityGroup
+
+  WebServerInstanceId:
+    Description: EC2 Web Server Instance ID
+    Value: !Ref WebServer
+
+  WebServerPublicIP:
+    Description: Public IP address of web server
+    Value: !GetAtt WebServer.PublicIp
+
+  DatabaseEndpoint:
+    Description: RDS database endpoint
+    Value: !GetAtt Database.Endpoint.Address
+
+  DatabasePort:
+    Description: RDS database port
+    Value: !GetAtt Database.Endpoint.Port
